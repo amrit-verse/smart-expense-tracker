@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-bg"></div>
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="brand-icon">₹</div>
+      <h1>Smart Expense<br/>Tracker</h1>
+      <p>Take control of your finances</p>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form" class="auth-card">
+      <h2>Welcome back</h2>
+      <p class="auth-sub">Sign in to your account</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••"/>
+      </div>
+      <div id="login-error" class="auth-error"></div>
+      <button class="btn-primary" onclick="login()">Sign In</button>
+      <p class="auth-switch">Don't have an account? <a onclick="toggleAuth('register')">Sign up</a></p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" class="auth-card" style="display:none">
+      <h2>Create account</h2>
+      <p class="auth-sub">Start tracking your expenses</p>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="John Doe"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="Min 6 characters"/>
+      </div>
+      <div id="register-error" class="auth-error"></div>
+      <button class="btn-primary" onclick="register()">Create Account</button>
+      <p class="auth-switch">Already have an account? <a onclick="toggleAuth('login')">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon-sm">₹</div>
+      <span class="brand-text">ExpenseTrack</span>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a class="nav-item" onclick="showPage('transactions')" data-page="transactions">
+        <span class="nav-icon">≋</span> Transactions
+      </a>
+      <a class="nav-item" onclick="showPage('analytics')" data-page="analytics">
+        <span class="nav-icon">◉</span> Analytics
+      </a>
+      <a class="nav-item" onclick="showPage('reports')" data-page="reports">
+        <span class="nav-icon">⬡</span> Reports
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">J</div>
+        <div>
+          <div class="user-name" id="sidebar-user-name">John</div>
+          <div class="user-role">Personal Account</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="page-title" id="page-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="date-display" id="date-display"></div>
+        <button class="btn-add-top" onclick="openModal()">+ Add Transaction</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+      <div class="summary-grid">
+        <div class="summary-card balance">
+          <div class="card-label">Net Balance</div>
+          <div class="card-amount" id="dash-balance">₹0.00</div>
+          <div class="card-trend" id="dash-balance-trend"></div>
+        </div>
+        <div class="summary-card income">
+          <div class="card-label">Total Income</div>
+          <div class="card-amount" id="dash-income">₹0.00</div>
+          <div class="card-sub">This period</div>
+        </div>
+        <div class="summary-card expense">
+          <div class="card-label">Total Expenses</div>
+          <div class="card-amount" id="dash-expense">₹0.00</div>
+          <div class="card-sub">This period</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="content-card chart-card">
+          <div class="card-header">
+            <h3>Income vs Expense</h3>
+            <div class="filter-pills">
+              <button class="pill active" onclick="setChartFilter('all', this)">All</button>
+              <button class="pill" onclick="setChartFilter('month', this)">This Month</button>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="pie-container">
+  		<canvas id="pie-chart"></canvas>
+		</div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <a class="see-all" onclick="showPage('transactions')">See All →</a>
+          </div>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <div class="card-header">
+          <h3>Monthly Overview</h3>
+        </div>
+        <div class="chart-wrapper-wide">
+          <canvas id="bar-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS PAGE -->
+    <div id="page-transactions" class="page">
+      <div class="page-controls">
+        <div class="filter-row">
+          <select id="filter-type" onchange="loadTransactions()">
+            <option value="">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <select id="filter-category" onchange="loadTransactions()">
+            <option value="">All Categories</option>
+          </select>
+          <input type="month" id="filter-month" onchange="loadTransactions()"/>
+          <button class="btn-secondary" onclick="clearFilters()">Clear Filters</button>
+        </div>
+        <button class="btn-primary" onclick="openModal()">+ Add Transaction</button>
+      </div>
+
+      <div class="summary-mini-grid">
+        <div class="mini-card income"><span>Income</span><strong id="t-income">₹0</strong></div>
+        <div class="mini-card expense"><span>Expense</span><strong id="t-expense">₹0</strong></div>
+        <div class="mini-card balance"><span>Balance</span><strong id="t-balance">₹0</strong></div>
+        <div class="mini-card count"><span>Transactions</span><strong id="t-count">0</strong></div>
+      </div>
+
+      <div class="content-card">
+        <div id="transaction-list" class="transaction-list"></div>
+        <div id="no-transactions" class="empty-state" style="display:none">
+          <div class="empty-icon">📊</div>
+          <p>No transactions found</p>
+          <button class="btn-primary" onclick="openModal()">Add Your First Transaction</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div id="page-analytics" class="page">
+      <div class="analytics-grid">
+        <div class="content-card">
+          <div class="card-header"><h3>Expense by Category</h3></div>
+          <canvas id="expense-category-chart"></canvas>
+        </div>
+        <div class="content-card">
+          <div class="card-header"><h3>Income by Category</h3></div>
+          <canvas id="income-category-chart"></canvas>
+        </div>
+        <div class="content-card full-width">
+          <div class="card-header"><h3>6-Month Trend</h3></div>
+          <div class="chart-wrapper-wide">
+            <canvas id="trend-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS PAGE -->
+    <div id="page-reports" class="page">
+      <div class="report-controls">
+        <div class="report-filters">
+          <input type="date" id="report-start" placeholder="Start Date"/>
+          <input type="date" id="report-end" placeholder="End Date"/>
+          <button class="btn-secondary" onclick="loadReport()">Generate Report</button>
+        </div>
+        <div class="report-actions">
+          <button class="btn-report print" onclick="printReport()">🖨 Print Report</button>
+          <button class="btn-report pdf" onclick="downloadPDF()">⬇ Download PDF</button>
+          <button class="btn-report csv" onclick="downloadCSV()">📊 Export CSV</button>
+        </div>
+      </div>
+
+      <div id="report-content" class="report-content">
+        <div class="report-header-block">
+          <h2>Smart Expense Tracker — Financial Report</h2>
+          <p id="report-period">Full History</p>
+        </div>
+        <div class="summary-mini-grid">
+          <div class="mini-card income"><span>Total Income</span><strong id="r-income">₹0</strong></div>
+          <div class="mini-card expense"><span>Total Expense</span><strong id="r-expense">₹0</strong></div>
+          <div class="mini-card balance"><span>Net Balance</span><strong id="r-balance">₹0</strong></div>
+          <div class="mini-card count"><span>Transactions</span><strong id="r-count">0</strong></div>
+        </div>
+        <div class="content-card">
+          <table class="report-table" id="report-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Type</th><th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD TRANSACTION MODAL -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Transaction</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="type-toggle">
+      <button class="type-btn active income-btn" id="type-income" onclick="selectType('income')">Income</button>
+      <button class="type-btn expense-btn" id="type-expense" onclick="selectType('expense')">Expense</button>
+    </div>
+
+    <form id="transaction-form" onsubmit="submitTransaction(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="tx-title" placeholder="e.g. Monthly Salary" required/>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹) *</label>
+          <input type="number" id="tx-amount" placeholder="0.00" step="0.01" min="0.01" required/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="tx-category" required>
+            <option value="">Select category</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="tx-date" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" id="tx-note" placeholder="Add a note..."/>
+      </div>
+      <div id="form-error" class="auth-error"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" id="submit-btn">Add Transaction</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

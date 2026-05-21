@@ -1,0 +1,11 @@
+{
+  "name": "smart-expense-tracker",
+  "version": "1.0.0",
+  "description": "Full-stack Smart Expense Tracker with Node.js, Express, MongoDB",
+  "scripts": {
+    "install-backend": "cd backend && npm install",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npm run dev",
+    "setup": "cd backend && npm install && cp .env.example .env && echo 'Setup complete! Edit backend/.env with your MongoDB URI then run: npm start'"
+  }
+}
