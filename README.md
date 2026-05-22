@@ -58,6 +58,7 @@ Edit `backend/.env`:
 MONGO_URI=mongodb://localhost:27017/expense_tracker
 JWT_SECRET=your_super_secret_key_change_this
 PORT=5000
+CLIENT_ORIGIN=http://localhost:5000
 ```
 
 > **Using MongoDB Atlas (cloud)?** Replace MONGO_URI with your connection string:
@@ -149,7 +150,7 @@ curl -X POST http://localhost:5000/api/transactions/add \
 - Register / Login with JWT
 - Passwords hashed with bcrypt
 - Protected API routes
-- Persistent login (localStorage)
+- Session-based login (sessionStorage)
 
 ---
 

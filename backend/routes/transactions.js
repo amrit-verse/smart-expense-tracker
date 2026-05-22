@@ -54,8 +54,28 @@ router.post('/add', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
+    const parsedAmount = Number(amount);
+    const parsedDate = new Date(date);
+
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Amount must be a positive number' });
+    }
+
+    if (!['income', 'expense'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Type must be income or expense' });
+    }
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ success: false, message: 'Please provide a valid date' });
+    }
+
     const transaction = await Transaction.create({
-      title, amount, type, category, date, note,
+      title,
+      amount: parsedAmount,
+      type,
+      category,
+      date: parsedDate,
+      note,
       user: req.user._id
     });
 

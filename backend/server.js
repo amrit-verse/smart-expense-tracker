@@ -6,9 +6,23 @@ require('dotenv').config();
 
 const app = express();
 
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('JWT_SECRET is required in production');
+    process.exit(1);
+  }
+
+  process.env.JWT_SECRET = 'development_jwt_secret_change_me';
+  console.warn('JWT_SECRET is not set. Using a development-only fallback.');
+}
+
 // Middleware
+const allowedOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map(origin => origin.trim())
+  : '*';
+
 app.use(cors({
-  origin: '*',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -25,6 +39,11 @@ app.use('/api/transactions', require('./routes/transactions'));
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Smart Expense Tracker API is running', timestamp: new Date() });
+});
+
+// API fallback
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
 });
 
 // Serve frontend for any other route

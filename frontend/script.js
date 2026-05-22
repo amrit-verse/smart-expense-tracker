@@ -128,8 +128,8 @@ function showPage(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'transactions') loadTransactions();
   if (name === 'analytics') {
- 	 window.scrollTo(0, 0);  // 🔥 ADD THIS
-  	loadAnalytics();
+    window.scrollTo(0, 0);
+    loadAnalytics();
 }
   if (name === 'reports') loadReport();
 
@@ -201,8 +201,8 @@ function renderPieChart(income, expense) {
     },
     options: {
   	responsive: true,
-  	maintainAspectRatio: false, // 🔥 FIX
-  	animation: true,
+      maintainAspectRatio: false,
+      animation: true,
       plugins: {
         legend: {
           position: 'bottom',
@@ -257,9 +257,9 @@ function renderBarChart(txs) {
       ]
     },
     options: {
-  	responsive: true,
-  	maintainAspectRatio: false,
-  	animation: false,   // 🔥 ADD THIS
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: { labels: { color: '#9090a8', font: { family: 'DM Sans', size: 12 } } }
       },
@@ -491,9 +491,9 @@ function renderCategoryChart(canvasId, cats, label, type, chartRef, setter) {
       }]
     },
     options: {
-  	responsive: true,
-  	maintainAspectRatio: false,
-  	animation: false,   // 🔥 ADD THIS
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: {
           position: 'bottom',
@@ -553,9 +553,9 @@ function renderTrendChart(txs) {
       ]
     },
     options: {
-  	responsive: true,
-  	maintainAspectRatio: false,
-  	animation: false,   // 🔥 ADD THIS
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: { labels: { color: '#9090a8', font: { family: 'DM Sans', size: 12 } } }
       },
